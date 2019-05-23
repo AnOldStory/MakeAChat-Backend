@@ -1,4 +1,5 @@
 var express = require("express");
+var session = require("express-session");
 var path = require("path");
 var favicon = require("serve-favicon");
 var logger = require("morgan");
@@ -9,6 +10,8 @@ var helmet = require("helmet");
 var flash = require("connect-flash");
 var passport = require("passport");
 var passportConfig = require("./config/passport");
+
+var cors = require("cors");
 
 var config = require("./config/config");
 
@@ -34,6 +37,16 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 app.use(helmet());
 app.use(flash());
+app.use(
+  session({
+    secret: config.SESSION_SECRET,
+    resave: true,
+    saveUninitialized: true,
+    cookie: { maxAge: 3600000, httpOnly: true },
+    rolling: true
+  })
+);
+app.use(cors());
 
 // passport serialize & deserialize
 app.use(passport.initialize());
