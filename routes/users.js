@@ -29,8 +29,8 @@ router.post("/login", function(req, res, next) {
     var whatinput = {};
     whatinput["username"] = req.body.username || null;
     db.login(req, res, function(err, check, token) {
-      if (check == true) {
-        res.json({ code: 200, token: token });
+      if (check != false) {
+        res.json({ code: 200, token: token, nickname: check });
       } else {
         if (err) {
           console.log(err);

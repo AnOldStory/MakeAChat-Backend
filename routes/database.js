@@ -21,7 +21,8 @@ exports.signup = function(req, res, callback) {
 exports.login = function(req, res, callback) {
   passport.authenticate("jwt-login", function(err, pass, token) {
     if (err) {
-      consol.log(err);
+      console.log(err);
+      return callback(err, false, null);
     } else if (!pass) {
       console.log(token);
       req.flash("alert", {
@@ -29,7 +30,7 @@ exports.login = function(req, res, callback) {
       });
       return callback(null, false, null);
     } else {
-      return callback(null, true, token);
+      return callback(null, pass, token);
     }
   })(req, res);
 };

@@ -99,7 +99,7 @@ module.exports = () => {
           } else {
             // result를 직접 넣기
             let token = jwt.sign(result.get(), config.JWT_SECRET);
-            return callback(null, true, "JWT " + token);
+            return callback(null, result.get().nickname, "JWT " + token);
           }
         });
       }
