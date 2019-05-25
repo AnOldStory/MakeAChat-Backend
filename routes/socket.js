@@ -28,7 +28,7 @@ io.on("connection", function(socket) {
         });
       } else {
         result.map(info => {
-          db.getNickname(info.id, function(err, result) {
+          db.getNickname(info.author, function(err, result) {
             if (err) {
               console.log(err);
               socket.emit("chat-pull", {
