@@ -1,7 +1,11 @@
 var passport = require("passport");
 var Models = require("../models");
 
-/* 회원가입 */
+/**
+ *  HTTP Controller
+ *  */
+
+/* SIGNIN */
 exports.signup = function(req, res, callback) {
   passport.authenticate("local-join", function(err, user, info) {
     if (err) {
@@ -17,7 +21,7 @@ exports.signup = function(req, res, callback) {
   })(req, res);
 };
 
-/* 로그인 */
+/* LOGIN */
 exports.login = function(req, res, callback) {
   passport.authenticate("jwt-login", function(err, pass, token) {
     if (err) {
@@ -33,21 +37,4 @@ exports.login = function(req, res, callback) {
       return callback(null, pass, token);
     }
   })(req, res);
-};
-
-exports.newChat = (req, res, callback) => {
-  Models.Chats.create({
-    author: req.body.author || "없습니다.",
-    text: req.body.text || "공백"
-  })
-    .then(result => {
-      if (result) {
-        return callback(null, true);
-      } else {
-        return callback(null, false);
-      }
-    })
-    .catch(err => {
-      return callback(err, false);
-    });
 };
