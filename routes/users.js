@@ -1,13 +1,13 @@
 var express = require("express");
 var router = express.Router();
-var db = require("./database");
+var db = require("./HttpDB");
 var passport = require("passport");
 
 router.get("/test", isAuth, function(req, res, next) {
   res.send(req.user);
 });
 
-/* 로그인 */
+/* LOGIN */
 router.post("/login", function(req, res, next) {
   var whatmiss = {};
   var isValid = true;
@@ -45,7 +45,7 @@ router.post("/login", function(req, res, next) {
   }
 });
 
-/* 회원가입 */
+/* SIGNUP */
 router.post("/signup", function(req, res, next) {
   var whatmiss = {};
   var isValid = true;
@@ -96,13 +96,13 @@ function isAuth(req, res, next) {
       check
     ) {
       if (check == false) {
-        res.json({ code: 400 });
+        res.json({ code: 400, alert: "잘못된 토큰입니다." });
       } else {
         req.user = check;
         return next();
       }
     })(req, res, next);
   } else {
-    res.json({ code: 400 });
+    res.json({ code: 400, alert: "잘못된 토큰입니다." });
   }
 }
