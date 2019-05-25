@@ -11,12 +11,42 @@ var io = socket_io();
 
 var socketApi = {};
 
+/* global-chat */
 socketApi.io = io;
 
 io.on("connection", function(socket) {
   console.log("A user connected");
 
-  /* Make a new Room */
+  /* retrive limit 10 items */
+  socket.on("get-chat-list", function(msg) {
+    db.getGlobalChat(function(err, result) {
+      if (err) {
+        console.log(err);
+        socket.emit("chat-pull", {
+          code: 400,
+          error: "서버 로드 오류"
+        });
+      } else {
+        result.map(info => {
+          db.getNickname(info.id, function(err, result) {
+            if (err) {
+              console.log(err);
+              socket.emit("chat-pull", {
+                code: 400,
+                error: "서버 로드 오류"
+              });
+            } else {
+              socket.emit("chat-pull", {
+                code: 200,
+                nickname: result,
+                text: info.text
+              });
+            }
+          });
+        });
+      }
+    });
+  });
 
   /* chat message */
   socket.on("chat-push", function(msg) {
@@ -25,21 +55,78 @@ io.on("connection", function(socket) {
       parse = JSON.parse(msg);
     } catch (e) {
       console.log(e);
-      io.emit("chat-pull", { code: 400, error: "잘못된 형식의 입력입니다." });
+      scoket.emit("chat-pull", {
+        code: 400,
+        error: "잘못된 형식의 api 호출입니다."
+      });
     }
     try {
-      nickname = jwt.verify(parse.token.substring(4), config.JWT_SECRET)
-        .nickname;
-      io.emit("chat-pull", { code: 200, nickname: nickname, text: parse.text });
+      info = jwt.verify(parse.token.substring(4), config.JWT_SECRET);
+      nickname = info.nickname;
+      console.log(info);
+      db.newGlobalChat(info, parse, function(err, check) {
+        if (err) {
+          console.log(err);
+          socket.emit("chat-pull", {
+            code: 400,
+            error: "서버 저장 오류"
+          });
+        } else {
+          io.emit("chat-pull", {
+            code: 200,
+            nickname: nickname,
+            text: parse.text
+          });
+        }
+      });
     } catch (e) {
       console.log(e);
-      io.emit("chat-pull", { code: 400, error: "잘못된 token입니다." });
+      socket.emit("chat-pull", {
+        code: 400,
+        error: "잘못된 token입니다. 새로 로그인 해주시길 바랍니다."
+      });
     }
   });
 
   /* disconnect */
   socket.on("disconnect", function() {
     console.log("user disconnected");
+  });
+});
+
+/* private-chat */
+
+io.of("/private-msg").on("connection", function(socket) {
+  console.log("private Connected");
+  /* retrive limit 10 items */
+  socket.on("get-chat-list", function(msg) {
+    db.getGlobalChat(function(err, result) {
+      if (err) {
+        console.log(err);
+        socket.emit("chat-pull", {
+          code: 400,
+          error: "서버 로드 오류"
+        });
+      } else {
+        result.map(info => {
+          db.getNickname(info.id, function(err, result) {
+            if (err) {
+              console.log(err);
+              socket.emit("chat-pull", {
+                code: 400,
+                error: "서버 로드 오류"
+              });
+            } else {
+              socket.emit("chat-pull", {
+                code: 200,
+                nickname: result,
+                text: info.text
+              });
+            }
+          });
+        });
+      }
+    });
   });
 });
 

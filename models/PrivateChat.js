@@ -1,14 +1,14 @@
 module.exports = function(sequelize, Datatypes) {
-  var Chats = sequelize.define("Chats", {
+  var PrivateChats = sequelize.define("PrivateChats", {
     id: {
       autoIncrement: true,
       primaryKey: true,
       type: Datatypes.INTEGER
     },
-    room: {
-      type: Datatypes.STRING(100)
-    },
     author: {
+      type: Datatypes.INTEGER
+    },
+    to: {
       type: Datatypes.INTEGER
     },
     text: {
@@ -16,5 +16,5 @@ module.exports = function(sequelize, Datatypes) {
     }
   });
 
-  return Chats;
+  return PrivateChats;
 };
