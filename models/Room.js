@@ -1,20 +1,17 @@
 module.exports = function(sequelize, Datatypes) {
-  var Chats = sequelize.define("Chats", {
+  var Rooms = sequelize.define("Rooms", {
     id: {
       autoIncrement: true,
       primaryKey: true,
       type: Datatypes.INTEGER
     },
-    room: {
+    name: {
       type: Datatypes.STRING(100)
     },
-    author: {
-      type: Datatypes.STRING(100)
-    },
-    text: {
-      type: Datatypes.STRING(1000)
+    who: {
+      type: Datatypes.ARRAY(Datatypes.TEXT)
     }
   });
 
-  return Chats;
+  return Rooms;
 };
