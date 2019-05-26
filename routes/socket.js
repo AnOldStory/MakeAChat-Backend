@@ -69,8 +69,7 @@ io.on("connection", function(socket) {
               } else {
                 io.emit("chat-pull", {
                   code: 200,
-                  nickname: info,
-                  nickname,
+                  nickname: info.nickname,
                   text: parse.text
                 });
               }
