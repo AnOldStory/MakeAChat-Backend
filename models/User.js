@@ -17,6 +17,9 @@ module.exports = function(sequelize, Datatypes) {
     },
     password: {
       type: Datatypes.STRING(100)
+    },
+    socket: {
+      type: Datatypes.STRING(50)
     }
   });
 

@@ -1,4 +1,6 @@
 var Models = require("../models");
+var Sequelize = require("sequelize");
+var Op = Sequelize.Op;
 
 /**
  *    Socket Controller
@@ -33,11 +35,131 @@ exports.getGlobalChat = callback => {
     });
 };
 
+/* Create PrivateChat */
+exports.newPrivateChat = (info, parse, callback) => {
+  Models.Users.findOne({
+    where: { nickname: parse.target },
+    attributes: ["id"]
+  })
+    .then(result => {
+      Models.PrivateChats.create({
+        author: info.id,
+        to: result.id,
+        text: parse.text
+      })
+        .then(result => {
+          if (result) {
+            return callback(null, true);
+          } else {
+            return callback(null, false);
+          }
+        })
+        .catch(err => {
+          return callback(err, false);
+        });
+    })
+    .catch(err => {
+      return err, false;
+    });
+};
+
+/* Get Message From PrivateChat*/
+exports.getPrivateChat = (author, id, callback) => {
+  Models.PrivateChats.findAll({
+    where: {
+      [Op.or]: [
+        { [Op.and]: [{ to: id }, { author: author }] },
+        { [Op.and]: [{ to: author }, { author: id }] }
+      ]
+    }
+  })
+    .then(result => {
+      return callback(null, result);
+    })
+    .catch(err => {
+      return callback(err, false);
+    });
+};
+
+/* Get List From PrivateChat*/
+exports.getPrivateChatList = (id, callback) => {
+  Models.PrivateChats.findAll({
+    where: {
+      [Op.or]: [{ to: id }, { author: id }]
+    },
+    attributes: { exclude: ["id"] }
+  })
+    .then(result => {
+      return callback(null, result);
+    })
+    .catch(err => {
+      return callback(err, false);
+    });
+};
+
 /* getNickname with Pk */
 exports.getNickname = (Pk, callback) => {
   Models.Users.findByPk(Pk)
     .then(result => {
-      return callback(null, result.get().nickname);
+      return callback(null, result.nickname);
+    })
+    .catch(err => {
+      return callback(err, false);
+    });
+};
+
+/* checkNickname Valid*/
+
+exports.checkNickname = (nickname, callback) => {
+  Models.Users.findOne({ where: { nickname: nickname } })
+    .then(result => {
+      return callback(null, result);
+    })
+    .catch(err => {
+      return callback(err, false);
+    });
+};
+
+/* getNickanme List */
+exports.getNicknameAll = callback => {
+  Models.Users.findAll({
+    attributes: "username"
+  })
+    .then(result => {
+      return callback(null, result);
+    })
+    .catch(err => {
+      return callback(err, false);
+    });
+};
+
+/* set SocketId to User */
+exports.setSocketId = (id, socketId, callback) => {
+  Models.Users.update({ socket: socketId }, { where: { id: id } })
+    .then(result => {
+      if (result) {
+        return callback(null, true);
+      } else {
+        return callback(null, false);
+      }
+    })
+    .catch(err => {
+      return callback(err, false);
+    });
+};
+
+/* get SocketId From User */
+exports.getSocketId = (nickname, callback) => {
+  Models.Users.findOne(
+    { where: { nickname: nickname } },
+    { attributes: "socket" }
+  )
+    .then(result => {
+      if (result) {
+        return callback(null, result.socket);
+      } else {
+        return callback(null, false);
+      }
     })
     .catch(err => {
       return callback(err, false);
