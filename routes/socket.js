@@ -3,7 +3,7 @@ var config = require("../config/config");
 var jwt = require("jsonwebtoken");
 
 /* DB */
-var db = require("./SocketDb");
+var db = require("./SocketDB");
 
 /* socket */
 var socket_io = require("socket.io");
