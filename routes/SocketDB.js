@@ -14,7 +14,7 @@ exports.newGlobalChat = (info, parse, callback) => {
   })
     .then(result => {
       if (result) {
-        return callback(null, true);
+        return callback(null, result.createdAt);
       } else {
         return callback(null, false);
       }
@@ -49,7 +49,7 @@ exports.newPrivateChat = (info, parse, callback) => {
       })
         .then(result => {
           if (result) {
-            return callback(null, true);
+            return callback(null, result.createdAt);
           } else {
             return callback(null, false);
           }

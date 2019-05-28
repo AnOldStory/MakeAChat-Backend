@@ -37,7 +37,8 @@ io.on("connection", function(socket) {
               socket.emit("chat-pull", {
                 code: 200,
                 nickname: result,
-                text: info.text
+                text: info.text,
+                time: info.createdAt
               });
             }
           });
@@ -62,7 +63,7 @@ io.on("connection", function(socket) {
               "잘못된 token입니다. 새로 로그인 해주시길 바랍니다."
             );
           } else {
-            db.newGlobalChat(info, parse, function(err, check) {
+            db.newGlobalChat(info, parse, function(err, time) {
               if (err) {
                 console.log(err);
                 emitErr(socket, "서버 저장 오류");
@@ -70,7 +71,8 @@ io.on("connection", function(socket) {
                 io.emit("chat-pull", {
                   code: 200,
                   nickname: info.nickname,
-                  text: parse.text
+                  text: parse.text,
+                  time: time
                 });
               }
             });
@@ -235,7 +237,8 @@ io.of("/private-msg").on("connection", function(socket) {
                           socket.emit("chat-pull", {
                             code: 200,
                             nickname: result,
-                            text: info.text
+                            text: info.text,
+                            time: info.createdAt
                           });
                         }
                       });
@@ -266,7 +269,7 @@ io.of("/private-msg").on("connection", function(socket) {
               "잘못된 token입니다. 새로 로그인 해주시길 바랍니다."
             );
           } else {
-            db.newPrivateChat(info, parse, function(err, check) {
+            db.newPrivateChat(info, parse, function(err, time) {
               if (err) {
                 console.log(err);
                 emitErr(socket, "서버 저장 오류");
@@ -274,7 +277,8 @@ io.of("/private-msg").on("connection", function(socket) {
                 socket.emit("chat-pull", {
                   code: 200,
                   nickname: info.nickname,
-                  text: parse.text
+                  text: parse.text,
+                  time: time
                 });
                 /* getSocket */
                 db.getSocketId(parse.target, function(err, result) {
@@ -286,7 +290,8 @@ io.of("/private-msg").on("connection", function(socket) {
                       code: 200,
                       from: info.nickname,
                       nickname: info.nickname,
-                      text: parse.text
+                      text: parse.text,
+                      time: time
                     });
                   }
                 });
