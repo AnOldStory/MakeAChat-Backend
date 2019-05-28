@@ -138,7 +138,7 @@ exports.setSocketId = (id, socketId, callback) => {
   Models.Users.update({ socket: socketId }, { where: { id: id } })
     .then(result => {
       if (result) {
-        return callback(null, true);
+        return callback(null, result.createdAt);
       } else {
         return callback(null, false);
       }
@@ -157,6 +157,33 @@ exports.getSocketId = (nickname, callback) => {
     .then(result => {
       if (result) {
         return callback(null, result.socket);
+      } else {
+        return callback(null, false);
+      }
+    })
+    .catch(err => {
+      return callback(err, false);
+    });
+};
+
+exports.whoSocketId = (socketid, callback) => {
+  Models.Users.findOne(
+    { where: { socket: socketid } },
+    { attributes: ["nickname", "createdAt"] }
+  )
+    .then(result => {
+      if (result) {
+        Models.Users.update({ socket: null }, { where: { socket: socketid } })
+          .then(check => {
+            if (check) {
+              return callback(null, result);
+            } else {
+              return callback(null, false);
+            }
+          })
+          .catch(err => {
+            return callback(err, false);
+          });
       } else {
         return callback(null, false);
       }

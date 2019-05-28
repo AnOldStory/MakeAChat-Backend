@@ -18,30 +18,73 @@ var socketApi = {};
  *  */
 socketApi.io = io;
 
+var members = [];
+
 io.on("connection", function(socket) {
   console.log("Global 로그인헀음");
 
   /* retrive limit 10 items */
   socket.on("get-chat-list", function(msg) {
-    db.getGlobalChat(function(err, result) {
+    parseJSON(msg, function(err, parse) {
       if (err) {
-        console.log(err);
-        emitErr(socket, "서버 글로벌 채팅 로드 오류");
+        emitErr(socket, "잘못된 형식 입니다.");
       } else {
-        result.map(info => {
-          db.getNickname(info.author, function(err, result) {
-            if (err) {
-              console.log(err);
-              emitErr(socket, "서버 닉네임 로드 오류");
-            } else {
-              socket.emit("chat-pull", {
-                code: 200,
-                nickname: result,
-                text: info.text,
-                time: info.createdAt
-              });
-            }
-          });
+        /* parse Token */
+        parseToken(parse, function(err, info) {
+          if (err) {
+            console.log(err);
+            emitErr(
+              socket,
+              "잘못된 token입니다. 새로 로그인 해주시길 바랍니다."
+            );
+          } else {
+            db.setSocketId(info.id, socket.id, function(err, check) {
+              if (err) {
+                console.log(err);
+                emitErr(socket, "소켓 아이디 설정 오류");
+              } else {
+                members.push(info.nickname);
+
+                /* make a set */
+                members = members.reduce(function(a, b) {
+                  if (a.indexOf(b) < 0) a.push(b);
+                  return a;
+                }, []);
+
+                db.getGlobalChat(function(err, result) {
+                  if (err) {
+                    console.log(err);
+                    emitErr(socket, "서버 글로벌 채팅 로드 오류");
+                  } else {
+                    result.map(info => {
+                      db.getNickname(info.author, function(err, result) {
+                        if (err) {
+                          console.log(err);
+                          emitErr(socket, "서버 닉네임 로드 오류");
+                        } else {
+                          socket.emit("chat-pull", {
+                            code: 200,
+                            nickname: result,
+                            text: info.text,
+                            time: info.createdAt
+                          });
+                        }
+                      });
+                    });
+                    socket.broadcast.emit("member-in", {
+                      code: 200,
+                      nickname: info.nickname,
+                      time: "system"
+                    });
+                    socket.emit("member-list", {
+                      code: 200,
+                      members: members
+                    });
+                  }
+                });
+              }
+            });
+          }
         });
       }
     });
@@ -84,6 +127,20 @@ io.on("connection", function(socket) {
 
   /* disconnect */
   socket.on("disconnect", function() {
+    db.whoSocketId(socket.id, function(err, info) {
+      if (err) {
+        console.log(err);
+      } else {
+        if (info) {
+          members.splice(members.indexOf(info.nickname), 1);
+          io.emit("member-out", {
+            code: 200,
+            nickname: info.nickname,
+            time: info.time
+          });
+        }
+      }
+    });
     console.log("GLOBAL 디스커넥트했음");
   });
 });
