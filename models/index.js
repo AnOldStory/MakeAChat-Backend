@@ -9,7 +9,8 @@ var sequelize = new Sequelize(
   config.DATABASE.password,
   {
     host: config.DATABASE.host,
-    dialect: "postgres"
+    dialect: "postgres",
+    timezone: "+09:00"
   }
 );
 var db = {};

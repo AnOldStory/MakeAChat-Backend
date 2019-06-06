@@ -26,8 +26,9 @@ exports.newGlobalChat = (info, parse, callback) => {
 
 /* Get 10 From GlobalChat */
 exports.getGlobalChat = callback => {
-  Models.GlobalChats.findAll({ limits: 10 })
+  Models.GlobalChats.findAll({ limit: 20, order: [["updatedAt", "DESC"]] })
     .then(result => {
+      console.log(result);
       return callback(null, result);
     })
     .catch(err => {
@@ -71,7 +72,8 @@ exports.getPrivateChat = (author, id, callback) => {
         { [Op.and]: [{ to: id }, { author: author }] },
         { [Op.and]: [{ to: author }, { author: id }] }
       ]
-    }
+    },
+    order: [["updatedAt", "DESC"]]
   })
     .then(result => {
       return callback(null, result);
