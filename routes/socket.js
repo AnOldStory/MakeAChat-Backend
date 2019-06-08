@@ -284,7 +284,6 @@ io.of("/private-msg").on("connection", function(socket) {
                     console.log(err);
                     emitErr(socket, "서버 개인 채팅 로드 오류");
                   } else {
-                    console.log(result);
                     result.map(info => {
                       db.getNickname(info.author, function(err, result) {
                         if (err) {
