@@ -87,7 +87,7 @@ yarn start
 
 ## Download FrontEnd
 
--Download link : https://github.com/AnOldStory/MakeAChat-FrontEnd/releases/tag/v1.0.2
+-Download link : https://github.com/AnOldStory/MakeAChat-FrontEnd/releases/
 
 
 
